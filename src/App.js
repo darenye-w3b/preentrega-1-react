@@ -1,4 +1,6 @@
 import './App.css';
+import { db } from "./config/firebase"
+import { collection } from 'firebase/firestore';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import NavBar from './components/NavBar/NavBar';
 import ItemListContainer from './components/ItemListContainer/ItemListContainer';

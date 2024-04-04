@@ -1,31 +1,41 @@
-import { useState, useEffect } from "react"
-import { getProducts, getProductsByCategory } from "../../asyncMock"
+import { collection, getDocs, query, where } from "firebase/firestore";
+import { useEffect, useState } from "react"
+import { useParams } from "react-router-dom";
 import ItemList from "../ItemList/ItemList"
-import { useParams } from "react-router-dom"
+import { db } from "../../config/firebase"
+import Item from "../Item/Item";
 
 const ItemListContainer = ({ greeting }) => {
-    const [products, setProducts] = useState([])
 
+    const [item, setItem] = useState([]);
+    const [loading, setLoading] = useState(true)
     const { categoryId } = useParams()
 
     useEffect(() => {
-        const asyncFunc = categoryId ? getProductsByCategory : getProducts
+        const collectionRef = collection(db, "products");
 
-        asyncFunc(categoryId)
-            .then(response => {
-                setProducts(response)
-            })
-            .catch(error => {
-                console.error(error)
-            })
+        const q = categoryId ? query(collectionRef, where("category", "==", categoryId)) : collectionRef;
+
+        getDocs(q)
+        .then((response)=>{
+
+            setItem(
+                response.docs.map((doc)=>{
+                    return {...doc.data(), id: doc.id}
+                })
+            )
+        })
     }, [categoryId])
 
     return (
         <div>
-            <h1 className="title">{greeting}</h1>
-            <ItemList products={products} />
+            <h1>{greeting}</h1>
+            <section>
+                <ItemList item={item} />
+            </section>
         </div>
     )
+    
 }
 
-export default ItemListContainer
+export default ItemListContainer;

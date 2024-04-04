@@ -5,7 +5,7 @@ import { CartContext } from "../../context/CartContext";
 
 const ItemDetail = ({ id, name, img, category, description, price, stock }) => {
     const [quantityAdded, setQuantityAdded] = useState(0);
-    const { addItem } = useContext(CartContext); 
+    const { addItems } = useContext(CartContext); 
 
     const handleOnAdded = (quantity) => {
         setQuantityAdded(quantity);
@@ -16,7 +16,11 @@ const ItemDetail = ({ id, name, img, category, description, price, stock }) => {
             price
         };
 
-        addItem(item, quantity);
+        if (typeof addItems === "function") {
+            addItems(item, quantity);
+        } else {
+            console.error("addItems is not a function");
+        }
     };
 
     return (
@@ -46,3 +50,4 @@ const ItemDetail = ({ id, name, img, category, description, price, stock }) => {
 };
 
 export default ItemDetail;
+

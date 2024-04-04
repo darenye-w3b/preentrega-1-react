@@ -1,20 +1,29 @@
-import React, { useContext, useEffect, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { CartContext } from "../../context/CartContext";
 import { Link } from "react-router-dom";
+import { getDocs, collection } from "firebase/firestore";
+import { db } from "../../config/firebase";
 import CartItem from "../CartItem/CartItem";
-import { getProducts } from "../../asyncMock";
 
 const Cart = () => {
-    const { cart, clearCart, totalQuantity, total } = useContext(CartContext);
-    const [products, setProducts] = useState([]);
+    const { cart, clearCart, totalQuantity } = useContext(CartContext);
+    const [items, setItems] = useState([]);
 
     useEffect(() => {
         const fetchProducts = async () => {
-            const data = await getProducts();
-            setProducts(data);
+            const querySnapshot = await getDocs(collection(db, "products"));
+            const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            setItems(data);
         };
         fetchProducts();
     }, []);
+
+    const totalPrice = () => {
+        return cart.reduce((prev, item) => {
+            const product = items.find(p => p.id === item.id);
+            return prev + (product.price * item.quantity);
+        }, 0);
+    };
 
     if (totalQuantity === 0) {
         return (
@@ -27,14 +36,13 @@ const Cart = () => {
 
     return (
         <div>
-            {cart.map(p => {
-                const product = products.find(prod => prod.id === p.id);
-                if (product) {
-                    return <CartItem key={p.id} {...p} img={product.img} />;
-                }
-                return null;
+            {cart.map(cartItem => {
+                const product = items.find(p => p.id === cartItem.id);
+                return product ? (
+                    <CartItem key={product.id} {...product} quantity={cartItem.quantity} />
+                ) : null;
             })}
-            <h3>Total: ${total}</h3>
+            <h3>Total: ${totalPrice()}</h3>
             <button onClick={() => clearCart()} className="Button">Limpiar Carrito</button>
             <Link to="/checkout" className="Option">Checkout</Link>
         </div>
@@ -42,6 +50,13 @@ const Cart = () => {
 };
 
 export default Cart;
+
+
+
+
+
+
+
 
 
 

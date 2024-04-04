@@ -21,9 +21,9 @@ const CheckoutForm = () => {
             total: totalPrice(),
         };
 
-        const orderRef = collection(db, "orders");
+        const collectionRef = collection(db, "products");
 
-        addDoc(orderRef, order).then((doc) => {
+        addDoc(collectionRef, order).then((doc) => {
             setOrderId(doc.id);
             clearCart();
         });

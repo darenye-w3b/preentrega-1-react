@@ -1,21 +1,29 @@
 import { createContext, useState } from "react"
 
 export const CartContext = createContext({
-    cart: []
-})
+    cart: [],
+    addItem: () => {},
+    removeItem: () => {},
+    clearCart: () => {},
+    totalPrice: () => {},
+    totalQuantity: () => {}
+});
+
 
 export const CartProvider = ({ children }) => {
     const [cart, setCart] = useState([])
 
+    
     console.log(cart)
 
     const addItem = (item, quantity) => {
-        if(!isInCart(item.id)) {
-            setCart(prev => [...prev, {...item, quantity}])
+        if (!isInCart(item.id)) {
+            setCart(prev => [...prev, { ...item, quantity, price: item.price }]);
         } else {
-            console.error("El producto ya fue agregado")
+            console.error("El producto ya fue agregado");
         }
-    }
+    };
+    
 
     const totalPrice = () => {
         return cart.reduce((prev,act)=> prev + act.quantity * act.price,0)
@@ -43,4 +51,5 @@ export const CartProvider = ({ children }) => {
         </CartContext.Provider>
     )
 }
+
 
